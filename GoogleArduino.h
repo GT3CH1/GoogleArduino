@@ -10,7 +10,6 @@ class GoogleArduino
   public:
     GoogleArduino(int resetPin);
     void setup(String firebaseHost, String authCode, char* ssid, char* wifiPass,int* invertedPins);
-    void checkStatus(String path);
 	void getMacAddr();
     void checkStatus(String root, int pin);
     void firstRun(String path,int pin);
