@@ -13,18 +13,23 @@ class GoogleArduino
 	void setupPin(int _pin,bool status);
     void checkStatus(String path);
 	void getMacAddr();
-	void checkRemote(String path);
+    void checkStatus(String path, int pin);
+    void firstRun(String path,int pin);
   private:
     int _resetPin;
     String _firebaseHost;
 	String _firebaseAuth;
     char* _authCode;
     char* _path;
-    FirebaseData firebaseData;
     char* _ssid;
     char* _wifiPass;
+
+    bool checkRemote(String path);
     bool resetRemote(String path);
+
 	void onError();
+    void updateRemote(String path);
+    FirebaseData firebaseData;
 
 };
 
