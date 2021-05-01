@@ -9,26 +9,32 @@ class GoogleArduino
 {
   public:
     GoogleArduino(int resetPin);
-    void setup(String firebaseHost, String authCode, char* ssid, char* wifiPass);
-	void setupPin(int _pin,bool status);
+    void setup(String firebaseHost, String authCode, char* ssid, char* wifiPass,int* invertedPins);
     void checkStatus(String path);
 	void getMacAddr();
-    void checkStatus(String path, int pin);
+    void checkStatus(String root, int pin);
     void firstRun(String path,int pin);
   private:
     int _resetPin;
+
     String _firebaseHost;
 	String _firebaseAuth;
+    
     char* _authCode;
     char* _path;
     char* _ssid;
     char* _wifiPass;
-
+    int* _invertedPins;
+    
     bool checkRemote(String path);
     bool resetRemote(String path);
-
-	void onError();
-    void updateRemote(String path);
+    bool updateRemote(String root);
+    bool pinInverted(int pin);	
+    
+    void onError();
+    void updateRelay(int pin, bool status, String root);
+    void blinkLed(int blinks);
+    void setupPath(String root, int pin);
     FirebaseData firebaseData;
 
 };
