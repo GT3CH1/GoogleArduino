@@ -41,7 +41,7 @@ void GoogleArduino::firstRun(String root, int pin){
     if(Firebase.getBool(firebaseData,path)){
        Serial.println("First run for: " + root);
        bool newStatus = firebaseData.boolData();
-       updateRelay(pin,!newStatus,root);
+       updateRelay(pin,newStatus,root);
     }else
         onError();
 }
