@@ -64,6 +64,8 @@ void GoogleArduino::checkStatus(String root, int pin){
         bool newStatus = firebaseData.boolData();
         updateRelay(pin,newStatus,root);
     }
+    if(firebaseData.streamTimeout())
+        onError();
 }
 
 
