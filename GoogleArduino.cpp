@@ -42,12 +42,12 @@ void GoogleArduino::firstRun(String root, int pin){
        Serial.println("First run for: " + root);
        bool newStatus = firebaseData.boolData();
        updateRelay(pin,newStatus,root);
+       pinMode(pin,OUTPUT);
     }else
         onError();
 }
 
 void GoogleArduino::setupPath(String root, int pin){
-	pinMode(pin,OUTPUT);
 	String path = root + "/OnOff/on";
 	Firebase.beginStream(firebaseData,path);
 }
@@ -58,9 +58,10 @@ void GoogleArduino::setupPath(String root, int pin){
  */
 void GoogleArduino::checkStatus(String root, int pin){
     Serial.println("Checking status for " + root); 
-    bool remoteOn = checkRemote(root);
+//   bool remoteOn = checkRemote(root);
 	String path = root + "/OnOff/on";
-    if(remoteOn && Firebase.getBool(firebaseData,path)){
+    Firebase.readStream(firebaseData);
+    if(Firebase.getBool(firebaseData,path)){
         bool newStatus = firebaseData.boolData();
         updateRelay(pin,newStatus,root);
     }
@@ -74,13 +75,14 @@ void GoogleArduino::checkStatus(String root, int pin){
  */
 void GoogleArduino::updateRelay(int pin, bool status, String root){
     digitalWrite(LED_BUILTIN,LOW);
-    if(!updateRemote(root))
-		onError();
+//    if(!updateRemote(root))
+//		onError();
 	if(pinInverted(pin))
 		status = !status;	
-    digitalWrite(pin,!status);
-	Serial.println(root + " -> " + String(status));
+    digitalWrite(pin,status ? LOW : HIGH);
+	Serial.println(root + " -> " + status ? "HIGH" : "LOW");
 	blinkLed(pin);
+	
 }
 
 bool GoogleArduino::pinInverted(int pin){
