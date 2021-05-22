@@ -33,7 +33,6 @@ class GoogleArduino
     void onError();
     void updateRelay(int pin, bool status, String root);
     void blinkLed(int blinks);
-    void setupPath(String root, int pin);
     FirebaseData firebaseData;
 
 };

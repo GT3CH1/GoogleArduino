@@ -30,26 +30,14 @@ void GoogleArduino::setup(String firebaseHost, String firebaseAuth, char* ssid, 
 	getMacAddr();
 }
 
-/**
- * Performs a dry-check of the given path, sets the pin to whatever value is there. Does not
- * perform a remote check.
- */
-void GoogleArduino::firstRun(String root, int pin){
-	setupPath(root,pin);
-	delay(1000);
-	String path = root + "/OnOff/on";
-    if(Firebase.getBool(firebaseData,path)){
-       Serial.println("First run for: " + root);
-       bool newStatus = firebaseData.boolData();
-       updateRelay(pin,newStatus,root);
-       pinMode(pin,OUTPUT);
-    }else
-        onError();
-}
 
-void GoogleArduino::setupPath(String root, int pin){
+ /**
+  * Starts the stream for the given root
+  */
+void GoogleArduino::firstRun(String root, int pin){
 	String path = root + "/OnOff/on";
 	Firebase.beginStream(firebaseData,path);
+    Serial.println("Beginning stream for " + root);
 }
 
 
@@ -58,9 +46,7 @@ void GoogleArduino::setupPath(String root, int pin){
  */
 void GoogleArduino::checkStatus(String root, int pin){
     Serial.println("Checking status for " + root); 
-//   bool remoteOn = checkRemote(root);
 	String path = root + "/OnOff/on";
-    Firebase.readStream(firebaseData);
     if(Firebase.getBool(firebaseData,path)){
         bool newStatus = firebaseData.boolData();
         updateRelay(pin,newStatus,root);
@@ -75,16 +61,19 @@ void GoogleArduino::checkStatus(String root, int pin){
  */
 void GoogleArduino::updateRelay(int pin, bool status, String root){
     digitalWrite(LED_BUILTIN,LOW);
-//    if(!updateRemote(root))
-//		onError();
 	if(pinInverted(pin))
 		status = !status;	
     digitalWrite(pin,status ? LOW : HIGH);
-	Serial.println(root + " -> " + status ? "HIGH" : "LOW");
+	Serial.println(root + " -> " + (status ? "LOW" : "HIGH"));
+    pinMode(pin,OUTPUT);
 	blinkLed(pin);
 	
 }
 
+
+/**
+ * Checks to see if the given pin needs to be inverted.
+ */
 bool GoogleArduino::pinInverted(int pin){
 	for(int i; i<sizeof(_invertedPins);i++)
 		if(_invertedPins[i] == pin){
@@ -94,38 +83,9 @@ bool GoogleArduino::pinInverted(int pin){
 	return false;
 }
 
-bool GoogleArduino::updateRemote(String root){
-	String path = root + "/OnOff/remote";
-    bool success = false;
-    Serial.print("Setting " + path + " to false... "); 
-    if (! Firebase.getBool(firebaseData,path))
-      onError();
-	if(!firebaseData.boolData()){
-		Serial.println("Remote is already off, ignoring.");
-		return true;
-	}
-    success = Firebase.setBool(firebaseData,path,false);
-    Serial.println(success ? "Success!" : "Failure!");
-    return success; 
-}
 
 /**
- * Checks the path to see if the given on/off remote is enabled. 
- */
-bool GoogleArduino::checkRemote(String root){
-    String path = root+"/OnOff/remote";
-	Serial.println("Checking remote -> " + path);
-    if(Firebase.getBool(firebaseData,path)){
-        bool status = firebaseData.boolData();
-        Serial.println("Remote status is: " + String(status));
-        return status;
-    }
-    else
-        onError();
-}
-
-/**
- ;* What to do when an error occurs. 
+ * What to do when an error occurs. 
  */
 void GoogleArduino::onError(){
 	Serial.println("Zoinks! An error occurred.");
